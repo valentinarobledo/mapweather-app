@@ -1,50 +1,58 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const { leerInput, inquirerMenu, pausa, listados } = require("./helpers/inquirer");
+const {
+  leerInput,
+  inquirerMenu,
+  pausa,
+  listados,
+} = require("./helpers/inquirer");
 const Busquedas = require("./models/busquedas");
 
-const main = async() =>{
+const main = async () => {
+  console.clear();
 
-	console.clear();
+  let opt = "";
+  const busquedas = new Busquedas();
 
-	let opt = '';
-	const busquedas = new Busquedas();
+  do {
+    opt = await inquirerMenu();
 
-	do{
+    switch (opt) {
+      case 1:
+        //Mostrar mensaje
+        const lugar = await leerInput("Ciudad: ");
 
-		opt = await inquirerMenu();
+        //Buscar los resultados
+        const lugares = await busquedas.ciudad(lugar);
 
-		switch (opt) {
-			case 1:
-				//Mostrar mensaje
-				const lugar = await leerInput('Ciudad: ');
+        //Seleccionar el lugar
+        const idSel = await listados(lugares);
 
-				//Buscar los resultados
-				const lugares = await busquedas.ciudad(lugar);
+        const lugarSel = lugares.find((item) => item.id === idSel);
 
-				//Seleccionar el lugar
-				const idSel = await listados(lugares);
+        //Clima
+        const clima = await busquedas.climaLugar(lugarSel.lat, lugarSel.lng);
 
-				console.log({ idSel });
-				const lugarSel = lugares.find( item => item.id === idSel);
-				console.log(lugarSel);
-				//Datos del clima relacionados
+        //Mostrar resultados
+				console.clear();
+        console.log("\nInformación de búsqueda\n".green);
+        console.log("Ciudad:", lugarSel.nombre);
+        console.log("Lat: ", lugarSel.lat);
+        console.log("Lng: ", lugarSel.lng);
+        console.log("Temperatura: ", clima.temp);
+        console.log("Minima:", clima.min);
+        console.log("Maxima: ", clima.max);
+        console.log("Descripcion :", clima.desc);
 
-				//Mostrar resultados
-				console.log('\nInformación de búsqueda\n'.green);
-				console.log('Ciudad:', lugarSel.nombre );
-				console.log('Lat: ', lugarSel.lat);
-				console.log('Lng: ', lugarSel.lng);
-				console.log('Temperatura: ',);
-				console.log('Minima:' ,);
-				console.log('Maxima: ',);
+        break;
+			case 2: 
+				
 
-				break;
-		}
-		
-		if (opt !== 0) await pausa();
+			break;
+    }
 
-	} while(opt !== 0);
-}
+    if (opt !== 0) await pausa();
+  } while (opt !== 0);
+};
 
 main();
